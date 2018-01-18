@@ -189,7 +189,7 @@ module.exports.authorization = [
   (request, response) => {
     console.log('this way~')
     response.render('dialog', {
-      transactionId: request.oauth2.transactionId,
+      transactionId: request.oauth2.transactionID,
       user: request.user,
       client: request.oauth2.client
     });
