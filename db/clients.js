@@ -13,7 +13,10 @@ module.exports.findById = (id, done) => {
 };
 
 module.exports.findByClientId = (clientId, done) => {
+  console.log(clientId)
   for (let i = 0, len = clients.length; i < len; i++) {
+    console.log('db clientId : ', clients[i].clientId)
+    console.log('user clientId : ', clientId)
     if (clients[i].clientId === clientId) return done(null, clients[i]);
   }
   return done(new Error('Client Not Found'));

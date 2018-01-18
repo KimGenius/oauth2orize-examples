@@ -78,7 +78,7 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectUri, done) => {
     if (error) return done(error);
     if (client.id !== authCode.clientId) return done(null, false);
     if (redirectUri !== authCode.redirectUri) return done(null, false);
-    
+    console.log('exchange code')
     const token = utils.getUid(256);
     db.accessTokens.save(token, authCode.userId, authCode.clientId, (error) => {
       if (error) return done(error);
@@ -151,24 +151,35 @@ server.exchange(oauth2orize.exchange.clientCredentials((client, scope, done) => 
 // first, and rendering the `dialog` view.
 
 module.exports.authorization = [
+  // 로그인 체크 : 로그인이 안되있으면 로그인 페이지로 가는듯
   login.ensureLoggedIn(),
   server.authorization((clientId, redirectUri, done) => {
+    // DB에 가져온 ClientId가 있는지 체크
     db.clients.findByClientId(clientId, (error, client) => {
+      console.log('findByClientId!!!')
       if (error) return done(error);
       // WARNING: For security purposes, it is highly advisable to check that
       //          redirectUri provided by the client matches one registered with
       //          the server. For simplicity, this example does not. You have
       //          been warned.
+      // WARNING: 번역: 보안을 위해서 클라이언트가 제공한 redirectUri가 서버에 등록된 것과
+      //               일치하는지 체크하는 것이 좋다. 단순화를 위해서는 안그래도 되지만 보안 위험
       return done(null, client, redirectUri);
     });
   }, (client, user, done) => {
     // Check if grant request qualifies for immediate approval
     
     // Auto-approve
-    if (client.isTrusted) return done(null, true);
-    
+    console.log('auto? not auto?')
+    if (client.isTrusted) {
+      console.log('this is auto!')
+      return done(null, true);
+    }
+
+    console.log('this is not auto!')
     db.accessTokens.findByUserIdAndClientId(user.id, client.clientId, (error, token) => {
       // Auto-approve
+      console.log(token)
       if (token) return done(null, true);
       
       // Otherwise ask user
@@ -176,7 +187,12 @@ module.exports.authorization = [
     });
   }),
   (request, response) => {
-    response.render('dialog', { transactionId: request.oauth2.transactionId, user: request.user, client: request.oauth2.client });
+    console.log('this way~')
+    response.render('dialog', {
+      transactionId: request.oauth2.transactionId,
+      user: request.user,
+      client: request.oauth2.client
+    });
   },
 ];
 

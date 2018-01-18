@@ -43,6 +43,7 @@ passport.deserializeUser((id, done) => {
  * the specification, in practice it is quite common.
  */
 function verifyClient(clientId, clientSecret, done) {
+  console.log('this?', clientId)
   db.clients.findByClientId(clientId, (error, client) => {
     if (error) return done(error);
     if (!client) return done(null, false);
