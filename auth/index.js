@@ -80,6 +80,7 @@ passport.use(new BearerStrategy(
       } else {
         // The request came from a client only since userId is null,
         // therefore the client is passed back instead of a user.
+        console.log('BearerStrategy')
         db.clients.findByClientId(token.clientId, (error, client) => {
           if (error) return done(error);
           if (!client) return done(null, false);

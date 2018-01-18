@@ -8,6 +8,8 @@ module.exports.find = (key, done) => {
 };
 
 module.exports.save = (code, clientId, redirectUri, userId, done) => {
+  console.log('authorization_codes save ')
   codes[code] = { clientId, redirectUri, userId };
+  console.log('authorization_codes save ', codes)
   done();
 };

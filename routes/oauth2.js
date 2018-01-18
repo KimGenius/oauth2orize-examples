@@ -46,6 +46,7 @@ server.deserializeClient((id, done) => {
 // values, and will be exchanged for an access token.
 
 server.grant(oauth2orize.grant.code((client, redirectUri, user, ares, done) => {
+  console.log('grant code')
   const code = utils.getUid(16);
   db.authorizationCodes.save(code, client.id, redirectUri, user.id, (error) => {
     if (error) return done(error);
@@ -60,6 +61,7 @@ server.grant(oauth2orize.grant.code((client, redirectUri, user, ares, done) => {
 // values.
 
 server.grant(oauth2orize.grant.token((client, user, ares, done) => {
+  console.log('grant token')
   const token = utils.getUid(256);
   db.accessTokens.save(token, user.id, client.clientId, (error) => {
     if (error) return done(error);
@@ -74,11 +76,11 @@ server.grant(oauth2orize.grant.token((client, user, ares, done) => {
 // code.
 
 server.exchange(oauth2orize.exchange.code((client, code, redirectUri, done) => {
+  console.log('exchange code')
   db.authorizationCodes.find(code, (error, authCode) => {
     if (error) return done(error);
     if (client.id !== authCode.clientId) return done(null, false);
     if (redirectUri !== authCode.redirectUri) return done(null, false);
-    console.log('exchange code')
     const token = utils.getUid(256);
     db.accessTokens.save(token, authCode.userId, authCode.clientId, (error) => {
       if (error) return done(error);
@@ -93,7 +95,8 @@ server.exchange(oauth2orize.exchange.code((client, code, redirectUri, done) => {
 // application issues an access token on behalf of the user who authorized the code.
 
 server.exchange(oauth2orize.exchange.password((client, username, password, scope, done) => {
-  // Validate the client
+  console.log('exchange password')
+// Validate the client
   db.clients.findByClientId(client.clientId, (error, localClient) => {
     if (error) return done(error);
     if (!localClient) return done(null, false);
@@ -119,7 +122,8 @@ server.exchange(oauth2orize.exchange.password((client, username, password, scope
 // application issues an access token on behalf of the client who authorized the code.
 
 server.exchange(oauth2orize.exchange.clientCredentials((client, scope, done) => {
-  // Validate the client
+  console.log('exchange clientCredentials')
+// Validate the client
   db.clients.findByClientId(client.clientId, (error, localClient) => {
     if (error) return done(error);
     if (!localClient) return done(null, false);
@@ -218,6 +222,9 @@ exports.decision = [
 
 exports.token = [
   passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
+  () => {
+    console.log('passport -> token')
+  },
   server.token(),
   server.errorHandler(),
 ];
